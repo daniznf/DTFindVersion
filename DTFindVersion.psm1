@@ -42,7 +42,7 @@ Export-ModuleMember -Function Find-Version
     Parses input line of text and extracts the version part.
     Version contained in passed line must be something like 1.2.3.4 or 1.2.3 or 1.2 or 1 or v1 or v1.2.3
 
-    DTFindVersion v0.5.0
+    DTFindVersion v0.5.1
 
 .PARAMETER Line
     Line to scan.
@@ -55,5 +55,5 @@ Export-ModuleMember -Function Find-Version
     - Build = version's Build number (if any)
     - Revision = version's Revision number (if any)
     - End = last part of the line, after version
-    - The complete line (without a key)
+    - [0] = The complete line
 #>

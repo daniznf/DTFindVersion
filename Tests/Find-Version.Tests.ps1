@@ -12,6 +12,7 @@ Describe "Find-Version" {
             $Version["Build"] | Should Be 3
             $Version["Revision"] | Should Be 4
             $Version["End"] | Should Be """)]"
+            $Version[0] | Should Be "[assembly: AssemblyVersion(""1.2.3.4"")]"
         }
     }
 

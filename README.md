@@ -14,7 +14,7 @@ A hashtable with following keys:
 - Build = version's Build number (if any)
 - Revision = version's Revision number (if any)
 - End = last part of the line, after version
-- The complete line (without a key)
+- [0] = The complete line
 
 
 ### EXAMPLE
