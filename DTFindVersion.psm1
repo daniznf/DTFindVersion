@@ -18,7 +18,7 @@
     https://github.com/daniznf/DTFindVersion
 #>
 
-function Find-VersionLine {
+function Find-VersionInLine {
     param (
         [Parameter(Mandatory)]
         [string]
@@ -129,4 +129,4 @@ function Find-VersionInFile
     #>
  }
 
-Export-ModuleMember -Function Find-VersionLine, Find-VersionInFile
+Export-ModuleMember -Function Find-VersionInLine, Find-VersionInFile
