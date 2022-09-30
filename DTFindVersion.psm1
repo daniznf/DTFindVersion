@@ -25,35 +25,60 @@ function Find-Version {
         $Line
     )
 
-    $Found = $Line -match "(?<Start>\D*)(?<Major>\d+)\.?(?<Minor>\d+)?\.?(?<Build>\d+)?\.?(?<Revision>\d+)?(?<End>\D*)"
+    $Found = $Line -match "(?<Start>\D*)(?<Major>\d+)\.(?<Minor>\d+)\.?(?<Build>\d+)?\.?(?<Revision>\d+)?(?<End>\D*)"
 
-    if ($Found) { return $Matches }
-    else { return $null }
+    if ($Found)
+    {
+        if ($Matches["Major"] -and $Matches["Minor"])
+        {
+            if ($Matches["Build"])
+            {
+                if ($Matches["Revision"])
+                {
+                    $Version = [Version]::new($Matches["Major"], $Matches["Minor"], $Matches["Build"], $Matches["Revision"])
+                }
+                else
+                {
+                    $Version = [Version]::new($Matches["Major"], $Matches["Minor"], $Matches["Build"])
+                }
+            }
+            else
+            {
+                $Version = [Version]::new($Matches["Major"], $Matches["Minor"])
+            }
+        }
+    }
+
+    if ($Version)
+    {
+        return $Matches["Start"], $Version, $Matches["End"]
+    }
+    else
+    {
+        return $null
+    }
+
+    <#
+    .SYNOPSIS
+        Finds version in passed text Line.
+
+    .DESCRIPTION
+        Parses input line of text and extracts the version part.
+        Version contained in passed line must be something like:
+        1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
+
+        DTFindVersion v0.6.0
+
+    .PARAMETER Line
+        Line to scan.
+
+    .OUTPUTS
+        An array composed of:
+        - [0] = first part of the line, before version
+        - [1] = a version object
+        - [2] = last part of the line, after version
+    #>
 }
 
+
 Export-ModuleMember -Function Find-Version
-
-
-<#
-.SYNOPSIS
-    Finds version in passed Line.
-
-.DESCRIPTION
-    Parses input line of text and extracts the version part.
-    Version contained in passed line must be something like 1.2.3.4 or 1.2.3 or 1.2 or 1 or v1 or v1.2.3
-
-    DTFindVersion v0.5.1
-
-.PARAMETER Line
-    Line to scan.
-
-.OUTPUTS
-    A hashtable with following keys:
-    - Start = first part of the line, before version
-    - Major = version's Major number
-    - Minor = version's Minor number (if any)
-    - Build = version's Build number (if any)
-    - Revision = version's Revision number (if any)
-    - End = last part of the line, after version
-    - [0] = The complete line
-#>
