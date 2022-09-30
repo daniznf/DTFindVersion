@@ -1,21 +1,27 @@
 # DT Find Version
 Daniele's Tools Find Version<br>
-Finds version in passed line of text
+Finds version in passed text line or text file.
 
 ### DESCRIPTION
-This Powershell script parses input line of text and extracts the version part.
-Version contained in passed line must be something like 1.2.3.4 or 1.2.3 or 1.2  or 1 or v1 or v1.2.3
+Finds versions in line of text, or text files, corresponding to Major.Minor.Build.Revision pattern.<br>
+This Powershell module has 2 functions:
 
-### OUTPUTS
-A hashtable with following keys:
-- Start = first part of the line, before version
-- Major = version's Major number
-- Minor = version's Minor number (if any)
-- Build = version's Build number (if any)
-- Revision = version's Revision number (if any)
-- End = last part of the line, after version
-- [0] = The complete line
+#### Find-VersionInLine:
+Parses input line of text and extracts the version part.<br>
+Version contained in passed line must be something like:<br>
+1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
 
+OUTPUTS<br>
+An array composed of:
+- [0] = first part of the line, before version
+- [1] = a Version object
+- [2] = last part of the line, after version
+
+#### Find-VersionInFile
+Parses input text file and extracts the first Version found in lines that contain the passed VersionTag.
+
+OUTPUTS<br>
+See above Find-VersionInLine
 
 ### EXAMPLE
 In the line:

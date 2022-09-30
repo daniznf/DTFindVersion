@@ -67,7 +67,7 @@ function Find-VersionLine {
         Version contained in passed line must be something like:
         1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
 
-        DTFindVersion v0.7.2
+        DTFindVersion v0.7.3
 
     .PARAMETER Line
         Line to scan.
