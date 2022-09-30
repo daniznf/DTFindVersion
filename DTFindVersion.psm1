@@ -67,7 +67,7 @@ function Find-Version {
         Version contained in passed line must be something like:
         1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
 
-        DTFindVersion v0.6.0
+        DTFindVersion v0.7.0
 
     .PARAMETER Line
         Line to scan.
@@ -80,5 +80,55 @@ function Find-Version {
     #>
 }
 
+function Find-VersionInFile
+{
+    param (
+        [Parameter(Mandatory)]
+        [string]
+        $FilePath,
+        [Parameter(Mandatory)]
+        [string]
+        $VersionTag
+    )
 
-Export-ModuleMember -Function Find-Version
+    if ((-not $FilePath) -or ( -not (Test-Path $FilePath)))
+    {
+        Write-Host $FilePath
+        throw [System.IO.FileNotFoundException]::new($FilePath)
+    }
+
+    $FileContent = Get-Content $FilePath
+
+    for ($i = 0; $i -lt $FileContent.Length; $i++)
+    {
+        $Line = $FileContent[$i]
+        if ($Line.Contains($VersionTag))
+        {
+            $Start, $Version, $End = Find-VersionInLine -Line $Line
+            if ($Version)
+            {
+                Write-Verbose ("Found version " + $VersionString + " in line ""$Line""")
+                return $Start, $Version, $End
+            }
+        }
+    }
+
+    <#
+    .SYNOPSIS
+        Finds version in passed text file.
+
+    .DESCRIPTION
+        Parses input text file and extracts the first Version found in lines that contain the passed VersionTag.
+
+    .PARAMETER Line
+        Line to scan.
+
+    .OUTPUTS
+        An array composed of:
+        - [0] = first part of the line, before version
+        - [1] = a Version object
+        - [2] = last part of the line, after version
+    #>
+ }
+
+Export-ModuleMember -Function Find-Version, Find-VersionInFile
