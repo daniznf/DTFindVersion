@@ -18,7 +18,7 @@
     https://github.com/daniznf/DTFindVersion
 #>
 
-function Find-Version {
+function Find-VersionLine {
     param (
         [Parameter(Mandatory)]
         [string]
@@ -67,7 +67,7 @@ function Find-Version {
         Version contained in passed line must be something like:
         1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
 
-        DTFindVersion v0.7.0
+        DTFindVersion v0.7.1
 
     .PARAMETER Line
         Line to scan.
