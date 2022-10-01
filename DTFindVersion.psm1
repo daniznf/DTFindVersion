@@ -100,14 +100,30 @@ function Find-VersionInFile
     for ($i = 0; $i -lt $FileContent.Length; $i++)
     {
         $Line = $FileContent[$i]
-        if ($Line.Contains($VersionTag))
+
+        if ($Line)
         {
-            $Start, $Version, $End = Find-VersionInLine -Line $Line
-            if ($Version)
+            # If a line contains an xml comment start, entire line will be skipped
+            if ($Line.Contains("<!--")) { $Skip = $true }
+
+            if ((-not $Line.Trim().StartsWith("//")) -and
+                (-not $Line.Trim().StartsWith("#")) -and
+                (-not $Skip))
             {
-                Write-Verbose ("Found version " + $VersionString + " in line ""$Line""")
-                return $Start, $Version, $End
+                if ($Line.Contains($VersionTag))
+                {
+                    $Start, $Version, $End = Find-VersionInLine -Line $Line
+                    if ($Version)
+                    {
+                        Write-Verbose ("Found version " + $VersionString + " in line ""$Line""")
+                        return $Start, $Version, $End
+                    }
+                }
             }
+            else { Write-Verbose "Ignoring $Line" }
+
+            # If a line contains an xml comment end, entire line will be skipped
+            if ($Line.Contains("-->")) { $Skip = $false }
         }
     }
 
