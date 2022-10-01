@@ -115,7 +115,7 @@ function Find-VersionInFile
                     $Start, $Version, $End = Find-VersionInLine -Line $Line
                     if ($Version)
                     {
-                        Write-Verbose ("Found version " + $VersionString + " in line ""$Line""")
+                        Write-Verbose ("Found version " + $Version.ToString() + " in line ""$Line""")
                         return $Start, $Version, $End
                     }
                 }
