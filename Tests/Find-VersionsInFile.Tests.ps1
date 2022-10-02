@@ -120,17 +120,21 @@ Describe "Find-VersionsInFile in Version-Test.xml" {
     }
 }
 
+
 Describe "Find-VersionsInFile in Version-Test.ps1" {
     BeforeAll {
         Import-Module $PSScriptRoot\..\DTFindVersion.psd1
 
         $FilePath = "$PSScriptRoot\Version-Test.ps1"
-        $VersionKeyword = "Version"
-        $Language = "ps"
-        $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
     }
 
     Context "Versions in Version-Test.ps1" {
+        BeforeAll {
+            $VersionKeyword = "Version"
+            $Language = "ps"
+            $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        }
+
         It "Has Length 9" {
             $Versions.Length | Should Be 9
         }
@@ -205,6 +209,54 @@ Describe "Find-VersionsInFile in Version-Test.ps1" {
             $Versions[8].Version.Build | Should Be 2
             $Versions[8].Version.Revision | Should Be -1
             $Versions[8].Line | Should Be ("$"+"Version = ""1.10.1"" #> $"+"Version = ""1.10.2""")
+        }
+    }
+
+    Context "Versions Without VersionKeyword" {
+        BeforeAll {
+            $Language = "ps"
+            $Versions = Find-VersionsInFile -FilePath $FilePath -Language $Language
+        }
+
+        It "Has Length 11" {
+            $Versions.Length | Should Be 11
+        }
+
+        It "Returns 2.1.1" {
+            $Versions[9].Version.Major | Should Be 2
+            $Versions[9].Version.Minor | Should Be 1
+            $Versions[9].Version.Build | Should Be 1
+            $Versions[9].Version.Revision | Should Be -1
+            $Versions[9].Line | Should Be ("$"+"AnotherVersion = ""2.1.1""")
+        }
+
+        It "Returns 2.2.1" {
+            $Versions[10].Version.Major | Should Be 2
+            $Versions[10].Version.Minor | Should Be 2
+            $Versions[10].Version.Build | Should Be 1
+            $Versions[10].Version.Revision | Should Be -1
+            $Versions[10].Line | Should Be ("$"+"AnotherNumber = ""2.2.1""")
+        }
+    }
+
+    Context "Versions Without Language" {
+        BeforeAll {
+            $VersionKeyword = "Version"
+            $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword
+        }
+
+        It "Has Length 10" {
+            $Versions.Length | Should Be 10
+        }
+    }
+
+    Context "Versions Without Language nor VersionKeyword" {
+        BeforeAll {
+            $Versions = Find-VersionsInFile -FilePath $FilePath
+        }
+
+        It "Has Length 11" {
+            $Versions.Length | Should Be 11
         }
     }
 

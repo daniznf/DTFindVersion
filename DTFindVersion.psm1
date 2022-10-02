@@ -86,9 +86,10 @@ function Find-VersionsInFile
         [Parameter(Mandatory)]
         [string]
         $FilePath,
-        [Parameter(Mandatory)]
+
         [string]
         $VersionKeyword,
+
         [ValidateSet("cs", "xml", "js", "ps", "vb", "bat")]
         [string]
         $Language
@@ -178,7 +179,7 @@ function Find-VersionsInFile
         $OrLine = $FileContent[$i]
         $Line = $OrLine
 
-        if ($OrLine.Contains($VersionKeyword))
+        if (($null -eq $VersionKeyword) -or ($OrLine.Contains($VersionKeyword)))
         {
             if ($OrLine)
             {

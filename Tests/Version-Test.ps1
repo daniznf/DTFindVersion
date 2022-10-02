@@ -23,10 +23,12 @@ $Version = "1.10.1" #> $Version = "1.10.2"
 <# $Version = "1.12.1"
 comment #>
 
+$AnotherVersion = "2.1.1"
+$AnotherNumber = "2.2.1"
+
 <# comment
 $Version = "1.13.1"
 #>
-
 
 Write-Host "Hello, version is $Version"
 
