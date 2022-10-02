@@ -168,6 +168,7 @@ function Find-VersionsInFile
     else { $CutOffset = $null }
 
     $FileContent = Get-Content $FilePath
+    if ($FileContent -is [string]) { $FileContent = @($FileContent) }
 
     for ($i = 0; $i -lt $FileContent.Length; $i++)
     {
