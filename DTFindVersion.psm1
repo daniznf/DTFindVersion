@@ -102,6 +102,29 @@ function Find-VersionsInFile
         throw [System.IO.FileNotFoundException]::new("Could not find $FilePath")
     }
 
+    if (-not $Language)
+    {
+        if ($FilePath.Contains("."))
+        {
+            $FileExtension = $FilePath.Substring($FilePath.LastIndexOf(".") +1)
+
+            switch ($FileExtension)
+            {
+                "cs" { $Language = "cs"; break }
+                "xml" { $Language = "xml"; break }
+                "csproj" { $Language = "xml"; break }
+                "js" { $Language = "js"; break }
+                "ps1" { $Language = "ps"; break }
+                "psm1" { $Language = "ps"; break }
+                "psd1" { $Language = "ps"; break }
+                "vb" { $Language = "vb"; break }
+                "bat" { $Language = "bat"; break }
+                Default { Write-Verbose "Could not guess file language!" }
+            }
+        }
+        if ($Language) { Write-Verbose "File language has been automatically set to $Language."}
+    }
+
     switch ($Language)
     {
         { $_ -in "cs", "js" }
