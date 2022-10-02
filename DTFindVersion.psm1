@@ -18,13 +18,15 @@
     https://github.com/daniznf/DTFindVersion
 #>
 
-function Find-VersionInLine {
+function Find-VersionInLine
+{
     param (
         [Parameter(Mandatory)]
         [string]
         $Line
     )
 
+    $Version = $null
     $Found = $Line -match "(?<Start>\D*)(?<Major>\d+)\.(?<Minor>\d+)\.?(?<Build>\d+)?\.?(?<Revision>\d+)?(?<End>\D*)"
 
     if ($Found)
@@ -78,7 +80,7 @@ function Find-VersionInLine {
     #>
 }
 
-function Find-VersionInFile
+function Find-VersionsInFile
 {
     param (
         [Parameter(Mandatory)]
@@ -86,63 +88,189 @@ function Find-VersionInFile
         $FilePath,
         [Parameter(Mandatory)]
         [string]
-        $VersionTag
+        $VersionKeyword,
+        [ValidateSet("cs", "xml", "js", "ps", "vb", "bat")]
+        [string]
+        $Language
     )
 
-    if ((-not $FilePath) -or ( -not (Test-Path $FilePath)))
+    $Versions = [System.Collections.ArrayList]::new()
+
+    if ( -not (Test-Path $FilePath))
     {
         Write-Host $FilePath
-        throw [System.IO.FileNotFoundException]::new($FilePath)
+        throw [System.IO.FileNotFoundException]::new("Could not find $FilePath")
     }
+
+    switch ($Language)
+    {
+        { $_ -in "cs", "js" }
+        {
+            $Comment = "//"
+            $CommentStart = "/*"
+            $CommentEnd = "*/"
+            break
+        }
+        "xml"
+        {
+            $CommentStart = "<!--"
+            $CommentEnd = "-->"
+            break
+        }
+        "ps"
+        {
+            $Comment = "#"
+            $CommentStart = "<#"
+            $CommentEnd = "#>"
+            break
+        }
+        "vb"
+        {
+            $Comment = "'"
+            break
+        }
+        "bat"
+        {
+            $Comment = "REM"
+            break
+        }
+
+        Default
+        {
+            $Comment, $CommentStart, $CommentEnd = $null
+        }
+    }
+
+    if ($CommentStart) { $CutOffset = $CommentEnd.Length }
+    else { $CutOffset = $null }
 
     $FileContent = Get-Content $FilePath
 
     for ($i = 0; $i -lt $FileContent.Length; $i++)
     {
-        $Line = $FileContent[$i]
+        $Start, $Version, $End = $null
+        $IgnoredBefore, $IgnoredMiddle, $IgnoredAfter = $null
+        $Cut, $CutStart, $CutEnd = -1
+        $OrLine = $FileContent[$i]
+        $Line = $OrLine
 
-        if ($Line)
+        if ($OrLine.Contains($VersionKeyword))
         {
-            # If a line contains an xml comment start, entire line will be skipped
-            if ($Line.Contains("<!--")) { $Skip = $true }
-
-            if ((-not $Line.Trim().StartsWith("//")) -and
-                (-not $Line.Trim().StartsWith("#")) -and
-                (-not $Skip))
+            if ($OrLine)
             {
-                if ($Line.Contains($VersionTag))
+                if ($CommentStart -and $CommentEnd)
+                {
+                    $CutStart = $OrLine.IndexOf($CommentStart)
+                    $CutEnd = $OrLine.IndexOf($CommentEnd)
+                    if ($CutStart -gt -1)
+                    {
+                        if ($CutEnd -gt -1)
+                        {
+                            if ($CutEnd -gt $CutStart)
+                            {
+                                if ($OrLine.Trim().IndexOf($CommentStart) -eq 0)
+                                {
+                    #               <# comment #> Version
+                                    $Line = $OrLine.Substring($CutEnd + $CutOffset)
+                                    $IgnoredBefore = $OrLine.Substring(0, $CutEnd + $CutOffset)
+                                }
+                                elseif ($OrLine.Trim().IndexOf($CommentEnd) -eq ($OrLine.Trim().Length - $CutOffset))
+                                {
+                    #               Version <# comment #>
+                                    $Line = $OrLine.Substring(0, $CutStart)
+                                    $IgnoredAfter = $OrLine.Substring($CutStart)
+                                }
+                                else
+                                {
+                    #               Version <# comment #> Version
+                                    $Line = $OrLine.Substring(0, $CutStart)
+                                    $IgnoredMiddle = $OrLine.Substring($CutStart, ($CutEnd + $CutOffset - $CutStart))
+                                    $Line += $OrLine.Substring($CutEnd + $CutOffset)
+                                }
+                            }
+                            else
+                            {
+                    #           comment#> Version <# comment
+                                $Line = $OrLine.Substring($CutEnd + $CutOffset, ($CutStart - $CutEnd - $CutOffset))
+                                $IgnoredBefore = $OrLine.Substring(0, $CutEnd + $CutOffset)
+                                $IgnoredAfter = $OrLine.Substring($CutStart)
+                            }
+                        }
+                        else
+                        {
+                    #       Version <# comment
+                            $Line = $OrLine.Substring(0, $CutStart)
+                            $IgnoredAfter = $OrLine.Substring($CutStart)
+                        }
+                    }
+                    else
+                    {
+                        if ($CutEnd -gt -1)
+                        {
+                    #       comment #> Version
+                            $Line = $OrLine.Substring($CutEnd + $CutOffset)
+                            $IgnoredBefore = $OrLine.Substring(0, $CutEnd + $CutOffset)
+                        }
+                    }
+                }
+
+                if ($Comment)
+                {
+                    $Cut = $OrLine.IndexOf($Comment)
+
+                    if (($Cut -gt -1) -and ($CutStart -eq -1) -and ($CutEnd -eq -1))
+                    {
+                #       Version # comment
+                        $Line = $OrLine.Substring(0, $Cut)
+                        $IgnoredAfter = $OrLine.Substring($Cut)
+                    }
+                }
+
+                if ($Line)
                 {
                     $Start, $Version, $End = Find-VersionInLine -Line $Line
                     if ($Version)
                     {
                         Write-Verbose ("Found version " + $Version.ToString() + " in line ""$Line""")
-                        return $Start, $Version, $End
-                    }
+                        $Line = $Start + $Version.ToString() + $End
+                        $Line = $IgnoredBefore + $Line + $IgnoredAfter
+
+                        if ($IgnoredMiddle -and ($CutStart -gt -1) -and ($CutStart -gt -1))
+                        {
+                            $Line = $Line.Substring(0, $CutStart) +
+                                    $IgnoredMiddle +
+                                    $Line.Substring($CutStart)
+                        }
+
+                        $Discard = $Versions.Add(@{"Version" = $Version; "Line" = $Line})
                 }
             }
-            else { Write-Verbose "Ignoring $Line" }
 
-            # If a line contains an xml comment end, entire line will be skipped
-            if ($Line.Contains("-->")) { $Skip = $false }
+            if ($IgnoredBefore -or $IgnoredMiddle -or $IgnoredAfter)
+                { Write-Verbose "Ignoring $IgnoredBefore; $IgnoredMiddle; $IgnoredAfter" }
         }
     }
+}
+
+    return $Versions
 
     <#
     .SYNOPSIS
         Finds version in passed text file.
 
     .DESCRIPTION
-        Parses input text file and extracts the first Version found in lines that contain the passed VersionTag.
+        Parses input text file and extracts all Versions found in lines that contain the passed VersionKeyword.
 
-    .PARAMETER Line
-        Line to scan.
+    .PARAMETER FilePath
+        Complete path of file to scan
+
+    .PARAMETER VersionKeyword,
+        Word to search, e.g: Version
+
+    .PARAMETER Language
+        Language of the file, used to properly handle comments
 
     .OUTPUTS
-        An array composed of:
-        - [0] = first part of the line, before version
-        - [1] = a Version object
-        - [2] = last part of the line, after version
+        Array of hashtables containing the Version object found in lines and the complete line
     #>
- }
-
-Export-ModuleMember -Function Find-VersionInLine, Find-VersionInFile
+}

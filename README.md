@@ -18,7 +18,7 @@ An array composed of:
 - [2] = last part of the line, after version
 
 #### Find-VersionInFile
-Parses input text file and extracts the first Version found in lines that contain the passed VersionTag.
+Parses input text file and extracts all Versions found in lines that contain the passed VersionKeyword.
 
 OUTPUTS<br>
 See above Find-VersionInLine
