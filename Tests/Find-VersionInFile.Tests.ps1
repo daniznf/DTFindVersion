@@ -1,12 +1,11 @@
-Describe "Find-VersionsInFile in AssemblyInfo-Test.cs" {
+Describe "Find-VersionInFile in AssemblyInfo-Test.cs" {
     BeforeAll {
-        Import-Module $PSScriptRoot\..\DTFindVersion.psd1
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\AssemblyInfo-Test.cs"
         $VersionKeyword = "AssemblyVersion"
         $Language = "cs"
-        $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
-
+        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
     }
 
     Context "Versions in AssemblyInfo-Test.cs" {
@@ -23,12 +22,12 @@ Describe "Find-VersionsInFile in AssemblyInfo-Test.cs" {
             $Versions[0].Line | Should Be "[assembly: AssemblyVersion(""1.1.1.1"")]"
         }
 
-        It "Returns 1.1.2.2" {
+        It "Returns 1.1.4.2" {
             $Versions[1].Version.Major | Should Be 1
             $Versions[1].Version.Minor | Should Be 1
-            $Versions[1].Version.Build | Should Be 2
-            $Versions[1].Version.Revision | Should Be 2
-            $Versions[1].Line | Should Be "[assembly: AssemblyVersion(""1.1.2.2"")] // (""9.9.9.9"")]"
+            $Versions[1].Version.Build | Should Be 4
+            $Versions[1].Version.Revision | Should Be 1
+            $Versions[1].Line | Should Be "[assembly: AssemblyVersion(""1.1.4.1"")] // (""1.1.4.2"")]"
         }
     }
 
@@ -37,14 +36,14 @@ Describe "Find-VersionsInFile in AssemblyInfo-Test.cs" {
     }
 }
 
-Describe "Find-VersionsInFile in Net60-Test.csproj" {
+Describe "Find-VersionInFile in Net60-Test.csproj" {
     BeforeAll {
-        Import-Module $PSScriptRoot\..\DTFindVersion.psd1
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\Net60-Test.csproj"
         $VersionKeyword = "AssemblyVersion"
         $Language = "xml"
-        $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
     }
 
     Context "Versions in Net60-Test.csproj" {
@@ -91,14 +90,14 @@ Describe "Find-VersionsInFile in Net60-Test.csproj" {
     }
 }
 
-Describe "Find-VersionsInFile in Version-Test.xml" {
+Describe "Find-VersionInFile in Version-Test.xml" {
     BeforeAll {
-        Import-Module $PSScriptRoot\..\DTFindVersion.psd1
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
+
         $FilePath = "$PSScriptRoot\Version-Test.xml"
         $VersionKeyword = "<Version>"
         $Language = "xml"
-
-        $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
     }
 
     Context "Versions in Version-Test.xml" {
@@ -121,9 +120,9 @@ Describe "Find-VersionsInFile in Version-Test.xml" {
 }
 
 
-Describe "Find-VersionsInFile in Version-Test.ps1" {
+Describe "Find-VersionInFile in Version-Test.ps1" {
     BeforeAll {
-        Import-Module $PSScriptRoot\..\DTFindVersion.psd1
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\Version-Test.ps1"
     }
@@ -132,7 +131,7 @@ Describe "Find-VersionsInFile in Version-Test.ps1" {
         BeforeAll {
             $VersionKeyword = "Version"
             $Language = "ps"
-            $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
         }
 
         It "Has Length 9" {
@@ -215,7 +214,7 @@ Describe "Find-VersionsInFile in Version-Test.ps1" {
     Context "Versions Without VersionKeyword" {
         BeforeAll {
             $Language = "ps"
-            $Versions = Find-VersionsInFile -FilePath $FilePath -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePath -Language $Language
         }
 
         It "Has Length 11" {
@@ -242,7 +241,7 @@ Describe "Find-VersionsInFile in Version-Test.ps1" {
     Context "Versions Without Language" {
         BeforeAll {
             $VersionKeyword = "Version"
-            $Versions = Find-VersionsInFile -FilePath $FilePath -VersionKeyword $VersionKeyword
+            $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword
         }
 
         It "Has Length 10" {
@@ -252,7 +251,7 @@ Describe "Find-VersionsInFile in Version-Test.ps1" {
 
     Context "Versions Without Language nor VersionKeyword" {
         BeforeAll {
-            $Versions = Find-VersionsInFile -FilePath $FilePath
+            $Versions = Find-VersionInFile -FilePath $FilePath
         }
 
         It "Has Length 11" {
