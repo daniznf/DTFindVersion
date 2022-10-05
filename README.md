@@ -1,43 +1,61 @@
 # DT Find Version
 Daniele's Tools Find Version<br>
-Finds version in passed text line or text file.
+Finds and updates version in text line or text file.
 
 ### DESCRIPTION
-Finds versions in line of text, or text files, corresponding to Major.Minor.Build.Revision pattern.<br>
-This Powershell module has 2 functions:
+If -Line is passed:<br>
+    Parses input line of text and extracts or updates the version part.<br>
+    Version contained in Line must follow Major.Minor[.Build[.Revision]] pattern, e.g.: 1.2.3.4 or 1.2.3 or 1.2.<br>
 
-#### Find-VersionInLine:
-Parses input line of text and extracts the version part.<br>
-Version contained in passed line must be something like:<br>
-1.2.3.4 or 1.2.3 or 1.2 or 1.2 or v1.2 or v1.2.3
+If -FilePath is passed:<br>
+    Parses input text file and extracts or updates all versions found in lines that contain -VersionKeyword.<br>
 
-OUTPUTS<br>
-An array composed of:
-- [0] = first part of the line, before version
-- [1] = a Version object
-- [2] = last part of the line, after version
-
-#### Find-VersionInFile
-Parses input text file and extracts all Versions found in lines that contain the passed VersionKeyword.
-
-OUTPUTS<br>
-See above Find-VersionInLine
+If -Increment or -Date is used, version will be updated accordingly.<br>
+- -Increment, if present, can have a value among Major, Minor, Build or Revision to increment it when found.<br>
+- -Date, if present, can have a value of Build, Revision or BuildAndRevision to generate a version number based on today's date and time, and write it in the Build part, Revision part, or both, respectively.
 
 ### EXAMPLE
-In the line:
+
+Read a version in input line:
 ```
-[assembly: AssemblyVersion(""1.2.3.4"")]
-```
-the version is:
-```
-1.2.3.4
+PS C:\> Find-Version -Line "Version 1.2.3"
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+1      2      3      -1
+Version 1.2.3
 ```
 
-In the line:
+Increment build number in input line:
 ```
-<FileVersion>v1.2.3</FileVersion>
+PS C:\> Find-Version -Line "Version 1.2.3" -Increment Build
+
+Major  Minor  Build  Revision
+-----  -----  -----  --------
+1      2      4      -1
+Version 1.2.4
 ```
-the version is:
+
+Find version in csproj file:
 ```
-1.2.3
+PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion
+
+Name                           Value
+----                           -----
+Version                        1.2.3
+Line                           <AssemblyVersion>1.2.3</AssemblyVersion>
 ```
+
+Increment version in my csproj file:
+```
+PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Increment Build
+New AssemblyVersion: 1.2.4
+```
+
+Generate version number based on today's date and time:
+```
+PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Date BuildAndRevision
+New AssemblyVersion: 1.3.278.3769
+```
+
+

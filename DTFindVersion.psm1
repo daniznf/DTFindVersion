@@ -62,11 +62,11 @@ function Find-VersionInLine
 
     <#
     .SYNOPSIS
-        Finds version in passed text Line.
+        Finds version in Line.
 
     .DESCRIPTION
         Parses input line of text and extracts the version part.
-        Version contained in passed line must follow Major.Minor[.Build[.Revision]] pattern, e.g.:
+        Version contained in Line must follow Major.Minor[.Build[.Revision]] pattern, e.g.:
         1.2.3.4 or 1.2.3 or 1.2
 
     .PARAMETER Line
@@ -160,9 +160,10 @@ function Update-Version {
 
     return $NewVersion
 
+
     <#
     .SYNOPSIS
-        Updates passed version.
+        Updates version.
 
     .DESCRIPTION
 
@@ -174,16 +175,19 @@ function Update-Version {
 
     .PARAMETER Date
         Generate a new version number for Build or Revision, or both.
-        If $Date is Build, the number will be written in Build part.
-        If $Date is Revision, the number will be written in Revision part.
-        If $Date is BuildAndRevision, Build will contain "day" part and
+        If -Date is Build, the number will be written in Build part.
+        If -Date is Revision, the number will be written in Revision part.
+        If -Date is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
         A positive or negative number to add to the "day" part of the date algorithm.
 
     .PARAMETER Now
-        A Datetime retrieved before calling this function.
+        A Datetime used to generate Date number, retrieved before calling this function.
+
+    .OUTPUTS
+        A new Version with updated values.
     #>
 }
 
@@ -217,9 +221,13 @@ function Select-Language {
 
     return $Language
 
+
     <#
     .SYNOPSIS
-        Guesses Language of passed file, based on file extension.
+        Guesses Language of file, based on file extension.
+
+    .OUTPUTS
+        A string corresponding to language.
     #>
 }
 
@@ -325,8 +333,8 @@ function Find-VersionInFile
         Default { }
     }
 
-    # $CutOffset is needed when comment tag is longer than 1 char, like "-->" .
-    if ($CommentStart) { $CutOffset = $CommentEnd.Length }
+    # $CutOffset is needed when $CommentEnd is longer than 1 char, like "-->" .
+    if ($CommentEnd) { $CutOffset = $CommentEnd.Length }
 
     # Make a backup if file is going to be updated.
     if ($Increment -or $Date)
@@ -474,7 +482,7 @@ function Find-VersionInFile
                 }
                 else
                 {
-                    # $Line  contains  $VersionKeyword but does not contain a version
+                    # $Line  contains $VersionKeyword but does not contain a version
                     $Line = $OrLine
                 }
             }
@@ -507,11 +515,11 @@ function Find-VersionInFile
 
     <#
     .SYNOPSIS
-        Finds or updates version in passed text file.
+        Finds or updates version in text file.
 
     .DESCRIPTION
-        Parses input text file and extracts all Versions found in lines that contain the passed $VersionKeyword.
-        If $Increment or $Date is passed, version will be updated in file accordingly.
+        Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
+        If -Increment or -Date is used, version will be updated in file accordingly.
 
     .PARAMETER FilePath
         Complete path of file to scan.
@@ -527,9 +535,9 @@ function Find-VersionInFile
 
     .PARAMETER Date
         Generate a new version number for Build or Revision, or both.
-        If $Date is Build, the number will be written in Build part.
-        If $Date is Revision, the number will be written in Revision part.
-        If $Date is BuildAndRevision, Build will contain "day" part and
+        If -Date is Build, the number will be written in Build part.
+        If -Date is Revision, the number will be written in Revision part.
+        If -Date is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
@@ -541,7 +549,7 @@ function Find-VersionInFile
         - [Line] = the complete line
 
     .NOTES
-        If Increment or Date are passed, file will be updated, not piped to output.
+        If Increment or Date is used, file will be updated, not piped to output.
     #>
 }
 
@@ -644,18 +652,19 @@ function Find-Version
         }
     }
 
+
     <#
     .SYNOPSIS
-        Finds version in passed text Line or text file.
+        Finds and updates version in text line or text file.
 
     .DESCRIPTION
-        If $Line is passed:
+        If -Line is passed:
             Parses input line of text and extracts the version part.
-            Version contained in passed line must follow Major.Minor[.Build[.Revision]] pattern, e.g.:
+            Version contained in Line must follow Major.Minor[.Build[.Revision]] pattern, e.g.:
             1.2.3.4 or 1.2.3 or 1.2.
-        If $FilePath is passed:
-            Parses input text file and extracts all Versions found in lines that contain the passed $VersionKeyword.
-        If $Increment or $Date is passed, version will be updated accordingly in passed Line or in passed File.
+        If -FilePath is passed:
+            Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
+        If -Increment or -Date is used, version will be updated accordingly.
 
    .PARAMETER Line
         Line to scan.
@@ -674,9 +683,9 @@ function Find-Version
 
     .PARAMETER Date
         Generate a new version number for Build or Revision, or both.
-        If $Date is Build, the number will be written in Build part.
-        If $Date is Revision, the number will be written in Revision part.
-        If $Date is BuildAndRevision, Build will contain "day" part and
+        If -Date is Build, the number will be written in Build part.
+        If -Date is Revision, the number will be written in Revision part.
+        If -Date is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
@@ -684,9 +693,5 @@ function Find-Version
 
     .PARAMETER WhatIf
         Do not actually write file, only display what would happen.
-
-    .EXAMPLE
-        Test-MyTestFunction -Verbose
-        Explanation of the function or its result. You can include multiple examples with additional .EXAMPLE lines
     #>
 }
