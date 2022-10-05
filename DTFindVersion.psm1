@@ -498,7 +498,7 @@ function Find-VersionInFile
                 if ($IgnoredBefore -and ($IgnoredMiddle -or $IgnoredAfter)) {$IgnoredLine += "; "}
                 $IgnoredLine += $IgnoredMiddle
                 if (($IgnoredBefore -or $IgnoredMiddle) -and $IgnoredAfter) {$IgnoredLine += "; "}
-                $IgnoredLine = $IgnoredAfter
+                $IgnoredLine += $IgnoredAfter
                 Write-Verbose "Ignoring $IgnoredLine"
             }
         }
