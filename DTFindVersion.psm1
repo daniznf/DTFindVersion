@@ -91,16 +91,16 @@ function Update-Version {
         [string]
         $Increment,
 
-        [Parameter(Mandatory, ParameterSetName="Date")]
+        [Parameter(Mandatory, ParameterSetName="Generate")]
         [ValidateSet("BuildAndRevision", "Build", "Revision")]
         [string]
-        $Date,
+        $Generate,
 
-        [Parameter(ParameterSetName="Date")]
+        [Parameter(ParameterSetName="Generate")]
         [int]
         $DayOffset,
 
-        [Parameter(Mandatory, ParameterSetName="Date")]
+        [Parameter(Mandatory, ParameterSetName="Generate")]
         [datetime]
         $Now
     )
@@ -120,7 +120,7 @@ function Update-Version {
         if ($Increment -eq "Build" -and $HasBuild) { $NewBuild++ }
         if ($Increment -eq "Revision" -and $HasRevision) { $NewRevision++ }
     }
-    elseif ($Date)
+    elseif ($Generate)
     {
          # Max 365
          $DayPart = ($Now).DayOfYear + $DayOffset
@@ -130,20 +130,20 @@ function Update-Version {
          $SecondPart = ($Now).Hour * 60 * 60 + ($Now).Minute * 60 + ($Now).Second
          $SecondPart = [System.Math]::Round($SecondPart / 10)
 
-         if (($Date -eq "Build") -and (-not ($Date -eq "Revision")))
+         if (($Generate -eq "Build") -and (-not ($Generate -eq "Revision")))
          {
              $NewBuild = $DayPart * 10000 + $SecondPart
 
              if ($HasRevision) { $NewRevision = $Version.Revision }
          }
-         elseif ((-not ($Date -eq "Build")) -and ($Date -eq "Revision"))
+         elseif ((-not ($Generate -eq "Build")) -and ($Generate -eq "Revision"))
          {
              if ($HasBuild)  { $NewBuild = $Version.Build }
              else { $NewBuild = 0}
 
              $NewRevision = $DayPart * 10000 + $SecondPart
          }
-         else # $Date -eq "BuildAndRevision"
+         else # $Generate -eq "BuildAndRevision"
          {
              $NewBuild = $DayPart
              $NewRevision = $SecondPart
@@ -173,18 +173,18 @@ function Update-Version {
     .PARAMETER Increment
         Value to increment.
 
-    .PARAMETER Date
+    .PARAMETER Generate
         Generate a new version number for Build or Revision, or both.
-        If -Date is Build, the number will be written in Build part.
-        If -Date is Revision, the number will be written in Revision part.
-        If -Date is BuildAndRevision, Build will contain "day" part and
+        If -Generate is Build, the number will be written in Build part.
+        If -Generate is Revision, the number will be written in Revision part.
+        If -Generate is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
-        A positive or negative number to add to the "day" part of the date algorithm.
+        A positive or negative number to add to the "day" part of the Generate algorithm.
 
     .PARAMETER Now
-        A Datetime used to generate Date number, retrieved before calling this function.
+        A Datetime used to generate number, retrieved before calling this function.
 
     .OUTPUTS
         A new Version with updated values.
@@ -237,19 +237,19 @@ function Find-VersionInFile
     param (
         [Parameter(Mandatory, ParameterSetName="Find")]
         [Parameter(Mandatory, ParameterSetName="Increment")]
-        [Parameter(Mandatory, ParameterSetName="Date")]
+        [Parameter(Mandatory, ParameterSetName="Generate")]
         [string]
         $FilePath,
 
         [Parameter(ParameterSetName="Find")]
         [Parameter(ParameterSetName="Increment")]
-        [Parameter(ParameterSetName="Date")]
+        [Parameter(ParameterSetName="Generate")]
         [string]
         $VersionKeyword,
 
         [Parameter(ParameterSetName="Find")]
         [Parameter(ParameterSetName="Increment")]
-        [Parameter(ParameterSetName="Date")]
+        [Parameter(ParameterSetName="Generate")]
         [ValidateSet("cs", "xml", "js", "ps", "vb", "bat")]
         [string]
         $Language,
@@ -259,24 +259,24 @@ function Find-VersionInFile
         [string]
         $Increment,
 
-        [Parameter(Mandatory, ParameterSetName="Date")]
+        [Parameter(Mandatory, ParameterSetName="Generate")]
         [ValidateSet("BuildAndRevision", "Build", "Revision")]
         [string]
-        $Date,
+        $Generate,
 
-        [Parameter(ParameterSetName="Date")]
+        [Parameter(ParameterSetName="Generate")]
         [int]
         $DayOffset,
 
         [Parameter(ParameterSetName="Increment")]
-        [Parameter(ParameterSetName="Date")]
+        [Parameter(ParameterSetName="Generate")]
         [Alias("DryRun")]
         [switch]
         $WhatIf
     )
 
     # Get a datetime now so all updates will have the same version number.
-    if ($Date) { $Now = Get-Date }
+    if ($Generate) { $Now = Get-Date }
 
     $Versions = [System.Collections.ArrayList]::new()
 
@@ -337,7 +337,7 @@ function Find-VersionInFile
     if ($CommentEnd) { $CutOffset = $CommentEnd.Length }
 
     # Make a backup if file is going to be updated.
-    if ($Increment -or $Date)
+    if ($Increment -or $Generate)
     {
         $FilePathBak = $FilePath + ".bak"
         Write-Verbose "Creating backup in $FilePathBak"
@@ -446,15 +446,15 @@ function Find-VersionInFile
                 $Start, $Version, $End = Find-VersionInLine -Line $Line
                 if ($Version)
                 {
-                    if ($Increment -or $Date)
+                    if ($Increment -or $Generate)
                     {
                         $UpdateParams = @{ "Version" = $Version }
 
                         if ($Increment) { $UpdateParams.Add("Increment", $Increment) }
 
-                        if ($Date)
+                        if ($Generate)
                         {
-                            $UpdateParams.Add("Date", $Date)
+                            $UpdateParams.Add("Generate", $Generate)
                             $UpdateParams.Add("Now", $Now)
 
                             if ($DayOffset) { $UpdateParams.Add("DayOffset", $DayOffset) }
@@ -503,7 +503,7 @@ function Find-VersionInFile
             }
         }
 
-        if ($Increment -or $Date)
+        if ($Increment -or $Generate)
         {
             if ($WhatIf) { Write-Host $Line }
             else { $Line | Out-File -FilePath $FilePath -Append }
@@ -519,7 +519,7 @@ function Find-VersionInFile
 
     .DESCRIPTION
         Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
-        If -Increment or -Date is used, version will be updated in file accordingly.
+        If -Increment or -Generate is used, version will be updated in file accordingly.
 
     .PARAMETER FilePath
         Complete path of file to scan.
@@ -533,15 +533,15 @@ function Find-VersionInFile
     .PARAMETER Increment
         Value to increment.
 
-    .PARAMETER Date
+    .PARAMETER Generate
         Generate a new version number for Build or Revision, or both.
-        If -Date is Build, the number will be written in Build part.
-        If -Date is Revision, the number will be written in Revision part.
-        If -Date is BuildAndRevision, Build will contain "day" part and
+        If -Generate is Build, the number will be written in Build part.
+        If -Generate is Revision, the number will be written in Revision part.
+        If -Generate is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
-        A positive or negative number to add to the "day" part of the date algorithm.
+        A positive or negative number to add to the "day" part of the Generate algorithm.
 
     .OUTPUTS
         Array of hashtables, one for each line containing a version, composed of:
@@ -549,7 +549,7 @@ function Find-VersionInFile
         - [Line] = the complete line
 
     .NOTES
-        If Increment or Date is used, file will be updated, not piped to output.
+        If Increment or Generate is used, file will be updated, not piped to output.
     #>
 }
 
@@ -559,25 +559,25 @@ function Find-Version
     param (
         [Parameter(Mandatory, ParameterSetName="FindLine")]
         [Parameter(Mandatory, ParameterSetName="IncrementLine")]
-        [Parameter(Mandatory, ParameterSetName="DateLine")]
+        [Parameter(Mandatory, ParameterSetName="GenerateLine")]
         [string]
         $Line,
 
         [Parameter(Mandatory, ParameterSetName="FindFile")]
         [Parameter(Mandatory, ParameterSetName="IncrementFile")]
-        [Parameter(Mandatory, ParameterSetName="DateFile")]
+        [Parameter(Mandatory, ParameterSetName="GenerateFile")]
         [string]
         $FilePath,
 
         [Parameter(ParameterSetName="FindFile")]
         [Parameter(ParameterSetName="IncrementFile")]
-        [Parameter(ParameterSetName="DateFile")]
+        [Parameter(ParameterSetName="GenerateFile")]
         [string]
         $VersionKeyword,
 
         [Parameter(ParameterSetName="FindFile")]
         [Parameter(ParameterSetName="IncrementFile")]
-        [Parameter(ParameterSetName="DateFile")]
+        [Parameter(ParameterSetName="GenerateFile")]
         [ValidateSet("cs", "xml", "js", "ps", "vb", "bat")]
         [string]
         $Language,
@@ -588,20 +588,19 @@ function Find-Version
         [string]
         $Increment,
 
-        [Parameter(Mandatory, ParameterSetName="DateLine")]
-        [Parameter(Mandatory, ParameterSetName="DateFile")]
+        [Parameter(Mandatory, ParameterSetName="GenerateLine")]
+        [Parameter(Mandatory, ParameterSetName="GenerateFile")]
         [ValidateSet("BuildAndRevision", "Build", "Revision")]
         [string]
-        # $Generate
-        $Date,
+        $Generate,
 
-        [Parameter(ParameterSetName="DateLine")]
-        [Parameter(ParameterSetName="DateFile")]
+        [Parameter(ParameterSetName="GenerateLine")]
+        [Parameter(ParameterSetName="GenerateFile")]
         [int]
         $DayOffset,
 
         [Parameter(ParameterSetName="IncrementFile")]
-        [Parameter(ParameterSetName="DateFile")]
+        [Parameter(ParameterSetName="GenerateFile")]
         [Alias("DryRun")]
         [switch]
         $WhatIf
@@ -611,9 +610,9 @@ function Find-Version
     $FileArgs = @{}
 
     if ($Increment) { $UpdateArgs.Add("Increment", $Increment) }
-    if ($Date)
+    if ($Generate)
     {
-        $UpdateArgs.Add("Date", $Date)
+        $UpdateArgs.Add("Generate", $Generate)
         if ($DayOffset) { $UpdateArgs.Add("DayOffset", $DayOffset) }
     }
 
@@ -628,7 +627,7 @@ function Find-Version
     {
         $Start, $Version, $End = Find-VersionInLine -Line $Line
 
-        if ($Increment -or $Date)
+        if ($Increment -or $Generate)
         {
             $UpdatedVersion = Update-Version -Version $Version @UpdateArgs
             return $UpdatedVersion, $Line.Replace($Version, $UpdatedVersion)
@@ -640,7 +639,7 @@ function Find-Version
     }
     if ($FilePath)
     {
-        if ($Increment -or $Date)
+        if ($Increment -or $Generate)
         {
             $FileArgs.Add("WhatIf", $WhatIf)
             $Versions = Find-VersionInFile @FileArgs @UpdateArgs
@@ -664,7 +663,7 @@ function Find-Version
             1.2.3.4 or 1.2.3 or 1.2.
         If -FilePath is passed:
             Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
-        If -Increment or -Date is used, version will be updated accordingly.
+        If -Increment or -Generate is used, version will be updated accordingly.
 
    .PARAMETER Line
         Line to scan.
@@ -681,15 +680,15 @@ function Find-Version
     .PARAMETER Increment
         Value to increment.
 
-    .PARAMETER Date
+    .PARAMETER Generate
         Generate a new version number for Build or Revision, or both.
-        If -Date is Build, the number will be written in Build part.
-        If -Date is Revision, the number will be written in Revision part.
-        If -Date is BuildAndRevision, Build will contain "day" part and
+        If -Generate is Build, the number will be written in Build part.
+        If -Generate is Revision, the number will be written in Revision part.
+        If -Generate is BuildAndRevision, Build will contain "day" part and
         Revision will contain "second" part.
 
     .PARAMETER DayOffset,
-        A positive or negative number to add to the "day" part of the date algorithm.
+        A positive or negative number to add to the "day" part of the Generate algorithm.
 
     .PARAMETER WhatIf
         Do not actually write file, only display what would happen.

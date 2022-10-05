@@ -10,9 +10,9 @@ If -Line is passed:<br>
 If -FilePath is passed:<br>
     Parses input text file and extracts or updates all versions found in lines that contain -VersionKeyword.<br>
 
-If -Increment or -Date is used, version will be updated accordingly.<br>
+If -Increment or -Generate is used, version will be updated accordingly.<br>
 - -Increment, if present, can have a value among Major, Minor, Build or Revision to increment it when found.<br>
-- -Date, if present, can have a value of Build, Revision or BuildAndRevision to generate a version number based on today's date and time, and write it in the Build part, Revision part, or both, respectively.
+- -Generate, if present, can have a value of Build, Revision or BuildAndRevision to generate a version number based on today's date and time, and write it in the Build part, Revision part, or both, respectively.
 
 ### EXAMPLE
 
@@ -54,7 +54,7 @@ New AssemblyVersion: 1.2.4
 
 Generate version number based on today's date and time:
 ```
-PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Date BuildAndRevision
+PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Generate BuildAndRevision
 New AssemblyVersion: 1.3.278.3769
 ```
 
