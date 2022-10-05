@@ -48,7 +48,7 @@ Describe "Find-VersionInFile in Net60-Test.csproj" {
 
     Context "Versions in Net60-Test.csproj" {
         It "Has Length 5" {
-            $Versions.Length | Should Be 4
+            $Versions.Length | Should Be 5
         }
 
         It "Returns 1.1.1" {
@@ -76,12 +76,12 @@ Describe "Find-VersionInFile in Net60-Test.csproj" {
 
         }
 
-        It "Returns 1.4.2" {
+        It "Returns 1.4.1" {
             $Versions[3].Version.Major | Should Be 1
             $Versions[3].Version.Minor | Should Be 4
-            $Versions[3].Version.Build | Should Be 2
+            $Versions[3].Version.Build | Should Be 1
             $Versions[3].Version.Revision | Should Be -1
-            $Versions[3].Line | Should Be "	1.4.2</AssemblyVersion>"
+            $Versions[3].Line | Should Be "	1.4.1</AssemblyVersion>"
         }
     }
 
