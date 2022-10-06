@@ -339,7 +339,8 @@ function Find-VersionInFile
     # $CutOffset is needed when $CommentEnd is longer than 1 char, like "-->" .
     if ($CommentEnd) { $CutOffset = $CommentEnd.Length }
 
-    $FileContent = Get-Content $FilePath
+    # Stop when access to file is denied
+    $FileContent = Get-Content $FilePath -ErrorAction Stop
 
     # Make a backup if file is going to be updated.
     if ($Increment -or $Generate)
