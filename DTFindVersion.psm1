@@ -336,6 +336,8 @@ function Find-VersionInFile
     # $CutOffset is needed when $CommentEnd is longer than 1 char, like "-->" .
     if ($CommentEnd) { $CutOffset = $CommentEnd.Length }
 
+    $FileContent = Get-Content $FilePath
+
     # Make a backup if file is going to be updated.
     if ($Increment -or $Generate)
     {
@@ -344,14 +346,8 @@ function Find-VersionInFile
         if (-not $WhatIf)
         {
             $null = Move-Item -Path $FilePath -Destination $FilePathBak -Force -ErrorAction Stop
-            $null = New-Item -Path $FilePath -ItemType File
+            $null = Copy-Item -Path $FilePathBak -Destination $FilePath -ErrorAction Stop
         }
-
-        $FileContent = Get-Content $FilePathBak
-    }
-    else
-    {
-        $FileContent = Get-Content $FilePath
     }
 
     # If file is 1 line long, $FileContent will be string, but an Array is needed.
@@ -506,8 +502,14 @@ function Find-VersionInFile
         if ($Increment -or $Generate)
         {
             if ($WhatIf) { Write-Host $Line }
-            else { $Line | Out-File -FilePath $FilePath -Append }
+            else { $FileContent[$i] = $Line }
         }
+    }
+
+    if ($Increment -or $Generate)
+    {
+        if (-not $WhatIf)
+        { Set-Content -Path $FilePath -Value $FileContent }
     }
 
     return $Versions
