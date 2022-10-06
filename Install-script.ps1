@@ -15,7 +15,7 @@ if (-not $ModulesDir)
 
     if ($ModulePaths -is [System.Array])
     {
-        Write-host "Allowed module paths are:"
+        Write-host "Recognized module paths are:"
         for ($i = 0; $i -lt $ModulePaths.Length; $i++)
         {
             Write-Host ("{0}: {1}" -f $i, $ModulePaths[$i])
