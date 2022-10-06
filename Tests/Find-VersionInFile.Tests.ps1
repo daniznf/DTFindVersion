@@ -275,3 +275,288 @@ Describe "Find-VersionInFile in Version-Test.ps1" {
         Remove-Module DTFindVersion
     }
 }
+
+
+Describe "Update-Version in AssemblyInfo-Test.cs" {
+    BeforeAll {
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
+
+        $FilePath = "$PSScriptRoot\AssemblyInfo-Test.cs"
+        $FilePathTesting = "$PSScriptRoot\AssemblyInfo-Test-Testing.cs"
+
+        $VersionKeyword = "AssemblyVersion"
+        $Language = "cs"
+    }
+
+    Context "Increment Revision in AssemblyInfo-Test.cs" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Revision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        }
+
+        It "Has Length 2" {
+            $Versions.Length | Should Be 2
+        }
+
+        It "Returns 1.1.1.2" {
+            $Versions[0].Version.Major | Should Be 1
+            $Versions[0].Version.Minor | Should Be 1
+            $Versions[0].Version.Build | Should Be 1
+            $Versions[0].Version.Revision | Should Be 2
+            $Versions[0].Line | Should Be "[assembly: AssemblyVersion(""1.1.1.2"")]"
+        }
+
+        It "Returns 1.1.4.2" {
+            $Versions[1].Version.Major | Should Be 1
+            $Versions[1].Version.Minor | Should Be 1
+            $Versions[1].Version.Build | Should Be 4
+            $Versions[1].Version.Revision | Should Be 2
+            $Versions[1].Line | Should Be "[assembly: AssemblyVersion(""1.1.4.2"")] // (""1.1.4.2"")]"
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
+    Context "Generate Revision in AssemblyInfo-Test.cs" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Generate Revision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        }
+
+        It "Has Length 2" {
+            $Versions.Length | Should Be 2
+        }
+
+        It "Returns 1.1.1.x" {
+            $Versions[0].Version.Major | Should Be 1
+            $Versions[0].Version.Minor | Should Be 1
+            $Versions[0].Version.Build | Should Be 1
+            $Versions[0].Version.Revision | Should BeGreaterThan 0
+            $Versions[0].Line.Contains("[assembly: AssemblyVersion(""1.1.1.") | Should Be $true
+        }
+
+        It "Returns 1.1.4.x" {
+            $Versions[1].Version.Major | Should Be 1
+            $Versions[1].Version.Minor | Should Be 1
+            $Versions[1].Version.Build | Should Be 4
+            $Versions[1].Version.Revision | Should BeGreaterThan 0
+            $Versions[1].Line.Contains("[assembly: AssemblyVersion(""1.1.4.") | Should Be $true
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
+    Context "Generate Build and Revision in AssemblyInfo-Test.cs" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Generate BuildAndRevision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        }
+
+        It "Has Length 2" {
+            $Versions.Length | Should Be 2
+        }
+
+        It "Returns 1.1.x.x" {
+            $Versions[0].Version.Major | Should Be 1
+            $Versions[0].Version.Minor | Should Be 1
+            $Versions[0].Version.Build | Should BeGreaterThan 0
+            $Versions[0].Version.Revision | Should BeGreaterThan 0
+            $Versions[0].Line | Should Match "[assembly: AssemblyVersion(""1.1."")]"
+        }
+
+        It "Returns 1.1.x.x" {
+            $Versions[1].Version.Major | Should Be 1
+            $Versions[1].Version.Minor | Should Be 1
+            $Versions[1].Version.Build | Should BeGreaterThan 0
+            $Versions[1].Version.Revision | Should BeGreaterThan 0
+            $Versions[1].Line.Contains("[assembly: AssemblyVersion(""1.1.") | Should Be $true
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
+    AfterAll {
+        Remove-Module DTFindVersion
+    }
+}
+
+Describe "Update-Version in Net60-Test.csproj" {
+    BeforeAll {
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
+
+        $FilePath = "$PSScriptRoot\Net60-Test.csproj"
+        $FilePathTesting = "$PSScriptRoot\Net60-Test-Testing.csproj"
+        Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+        $VersionKeyword = "AssemblyVersion"
+        $Language = "xml"
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Minor
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+    }
+
+    Context "Increment Minor in Net60-Test.csproj" {
+        It "Has Length 5" {
+            # $Versions.Length | Should Be 5
+            Write-Host "It should be 5 when multi line will be correctly handled"
+        }
+
+        It "Returns 1.2.1" {
+            $Versions[0].Version.Major | Should Be 1
+            $Versions[0].Version.Minor | Should Be 2
+            $Versions[0].Version.Build | Should Be 1
+            $Versions[0].Version.Revision | Should Be -1
+            $Versions[0].Line | Should Be "	<AssemblyVersion>1.2.1<!-- comment"
+        }
+
+        It "Returns 1.3.1" {
+            $Versions[1].Version.Major | Should Be 1
+            $Versions[1].Version.Minor | Should Be 3
+            $Versions[1].Version.Build | Should Be 1
+            $Versions[1].Version.Revision | Should Be -1
+            $Versions[1].Line | Should Be "	<AssemblyVersion><!--comment-->1.3.1</AssemblyVersion>"
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+            Remove-Module DTFindVersion
+        }
+    }
+}
+
+Describe "Update-Version in Version-Test.xml" {
+    BeforeAll {
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
+
+        $FilePath = "$PSScriptRoot\Version-Test.xml"
+        $FilePathTesting = "$PSScriptRoot\Version-Test-Testing.xml"
+        Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+        $VersionKeyword = "<Version>"
+        $Language = "xml"
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Build
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+    }
+
+    Context "Increment Build in Version-Test.xml" {
+        It "Has Length 1" {
+            $Versions.Length | Should Be 1
+        }
+
+        It "Returns 1.2.4" {
+            $Versions.Version.Major | Should Be 1
+            $Versions.Version.Minor | Should Be 2
+            $Versions.Version.Build | Should Be 4
+            $Versions.Version.Revision | Should Be -1
+            $Versions.Line | Should Be "    <Version>1.2.4</Version>"
+        }
+    }
+
+    AfterAll {
+        Remove-Item -Path $FilePathTesting
+        Remove-Item -Path ($FilePathTesting + ".bak")
+        Remove-Module DTFindVersion
+    }
+}
+
+
+Describe "Update-Version in Version-Test.ps1" {
+    BeforeAll {
+        Import-Module $PSScriptRoot\..\DTFindVersion.psm1
+
+        $FilePath = "$PSScriptRoot\Version-Test.ps1"
+        $FilePathTesting = "$PSScriptRoot\Version-Test-Testing.ps1"
+    }
+
+    Context "Increment Major in Version-Test.ps1" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $VersionKeyword = "Version"
+            $Language = "ps"
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Major
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        }
+
+        It "Has Length 9" {
+            # $Versions.Length | Should Be 9
+            Write-Host "It should be 9 when multi line will be correctly handled"
+        }
+
+        It "Returns 2.2.1" {
+            $Versions[0].Version.Major | Should Be 2
+            $Versions[0].Version.Minor | Should Be 2
+            $Versions[0].Version.Build | Should Be 1
+            $Versions[0].Version.Revision | Should Be -1
+            $Versions[0].Line | Should Be ("$"+"Version = ""2.2.1"" # Version = ""1.2.2""")
+        }
+
+        It "Returns 2.3.1" {
+            $Versions[1].Version.Major | Should Be 2
+            $Versions[1].Version.Minor | Should Be 3
+            $Versions[1].Version.Build | Should Be 1
+            $Versions[1].Version.Revision | Should Be -1
+            $Versions[1].Line | Should Be ("$"+"Version = ""2.3.1""")
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
+    Context "Generate Build in Version-Test.ps1" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $Language = "ps"
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Language $Language -Generate Build
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Language $Language
+        }
+
+        It "Has Length 11" {
+            # $Versions.Length | Should Be 11
+            Write-Host "It should be 11 when multi line will be correctly handled"
+        }
+
+        It "Returns 1.1.x" {
+            $Versions[9].Version.Major | Should Be 2
+            $Versions[9].Version.Minor | Should Be 1
+            $Versions[9].Version.Build | Should BeGreaterThan 0
+            $Versions[9].Version.Revision | Should Be -1
+            $Versions[9].Line.Contains("$"+"AnotherVersion = ""2.1.") | Should Be $true
+        }
+
+        It "Returns 2.2.x" {
+            $Versions[10].Version.Major | Should Be 2
+            $Versions[10].Version.Minor | Should Be 2
+            $Versions[10].Version.Build | Should BeGreaterThan 0
+            $Versions[10].Version.Revision | Should Be -1
+            $Versions[10].Line.Contains("$"+"AnotherNumber = ""2.2.") | Should Be $true
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
+    AfterAll {
+        Remove-Module DTFindVersion
+    }
+}

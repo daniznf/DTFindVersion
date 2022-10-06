@@ -6,7 +6,7 @@
 RootModule = 'DTFindVersion.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.25.0'
+ModuleVersion = '0.26.0'
 
 # ID used to uniquely identify this module
 GUID = '9335a77e-bd13-4398-a393-cb1f614fe2b3'
@@ -42,7 +42,7 @@ FileList = @("DTFindVersion.psd1", "DTFindVersion.psm1", "LICENSE", "README.md")
 PrivateData = @{
     PSData = @{
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("Update", "Version", "Text", "File")
+        Tags = @("Update", "Version", "Text", "File", "Source", "Development")
 
         # A URL to the license for this module.
         LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.txt'
