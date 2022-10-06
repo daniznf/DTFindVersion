@@ -14,7 +14,6 @@ Describe "Find-VersionInFile in AssemblyInfo-Test.cs" {
         }
 
         It "Returns 1.1.1.1" {
-
             $Versions[0].Version.Major | Should Be 1
             $Versions[0].Version.Minor | Should Be 1
             $Versions[0].Version.Build | Should Be 1
@@ -22,7 +21,7 @@ Describe "Find-VersionInFile in AssemblyInfo-Test.cs" {
             $Versions[0].Line | Should Be "[assembly: AssemblyVersion(""1.1.1.1"")]"
         }
 
-        It "Returns 1.1.4.2" {
+        It "Returns 1.1.4.1" {
             $Versions[1].Version.Major | Should Be 1
             $Versions[1].Version.Minor | Should Be 1
             $Versions[1].Version.Build | Should Be 4
@@ -83,6 +82,14 @@ Describe "Find-VersionInFile in Net60-Test.csproj" {
             $Versions[3].Version.Build | Should Be 1
             $Versions[3].Version.Revision | Should Be -1
             $Versions[3].Line | Should Be "	1.4.1</AssemblyVersion>"
+        }
+
+        It "Returns 1.5.1" {
+            $Versions[4].Version.Major | Should Be 1
+            $Versions[4].Version.Minor | Should Be 5
+            $Versions[4].Version.Build | Should Be 1
+            $Versions[4].Version.Revision | Should Be -1
+            $Versions[4].Line | Should Be "	<AssemblyVersion>1.5.1</AssemblyVersion>"
         }
     }
 

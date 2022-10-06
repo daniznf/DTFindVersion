@@ -6,7 +6,7 @@
 RootModule = 'DTFindVersion.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.22.1'
+ModuleVersion = '0.22.2'
 
 # ID used to uniquely identify this module
 GUID = '9335a77e-bd13-4398-a393-cb1f614fe2b3'
