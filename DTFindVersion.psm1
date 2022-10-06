@@ -275,6 +275,9 @@ function Find-VersionInFile
         $WhatIf
     )
 
+    $WhatIfParam = @{}
+    if ($WhatIf) { $WhatIfParam.Add("WhatIf", $true) }
+
     # Get a datetime now so all updates will have the same version number.
     if ($Generate) { $Now = Get-Date }
 
@@ -343,11 +346,9 @@ function Find-VersionInFile
     {
         $FilePathBak = $FilePath + ".bak"
         Write-Verbose "Creating backup in $FilePathBak"
-        if (-not $WhatIf)
-        {
-            $null = Move-Item -Path $FilePath -Destination $FilePathBak -Force -ErrorAction Stop
-            $null = Copy-Item -Path $FilePathBak -Destination $FilePath -ErrorAction Stop
-        }
+        $null = Move-Item -Path $FilePath -Destination $FilePathBak -Force -ErrorAction Stop @WhatIfParam
+        $null = Copy-Item -Path $FilePathBak -Destination $FilePath -ErrorAction Ignore @WhatIfParam
+
     }
 
     # If file is 1 line long, $FileContent will be string, but an Array is needed.
@@ -499,17 +500,12 @@ function Find-VersionInFile
             }
         }
 
-        if ($Increment -or $Generate)
-        {
-            if ($WhatIf) { Write-Host $Line }
-            else { $FileContent[$i] = $Line }
-        }
+        $FileContent[$i] = $Line
     }
 
     if ($Increment -or $Generate)
     {
-        if (-not $WhatIf)
-        { Set-Content -Path $FilePath -Value $FileContent }
+        Set-Content -Path $FilePath -Value $FileContent @WhatIfParam
     }
 
     return $Versions
@@ -643,7 +639,7 @@ function Find-Version
     {
         if ($Increment -or $Generate)
         {
-            $FileArgs.Add("WhatIf", $WhatIf)
+            if ($WhatIf) { $FileArgs.Add("WhatIf", $WhatIf) }
             $Versions = Find-VersionInFile @FileArgs @UpdateArgs
             return ( $Versions | ForEach-Object { write-host ("New {0}: {1}" -f $VersionKeyword, $_.Version) } )
         }
