@@ -1,61 +1,93 @@
 # DT Find Version
 Daniele's Tools Find Version<br>
-Finds and updates version in text line or text file.
+Finds and updates versions in text line or text file, source code.
 
 ### DESCRIPTION
-If -Line is passed:<br>
-    Parses input line of text and extracts or updates the version part.<br>
-    Version contained in Line must follow Major.Minor[.Build[.Revision]] pattern, e.g.: 1.2.3.4 or 1.2.3 or 1.2.<br>
+If -Line is passed:
+- Parses input line of text and extracts or updates the version part
 
-If -FilePath is passed:<br>
-    Parses input text file and extracts or updates all versions found in lines that contain -VersionKeyword.<br>
+If -FilePath is passed:
+- Parses input text file and extracts or updates all versions found in lines that contain the VersionKeyword<br>
 
-If -Increment or -Generate is used, version will be updated accordingly.<br>
-- -Increment, if present, can have a value among Major, Minor, Build or Revision to increment it when found.<br>
-- -Generate, if present, can have a value of Build, Revision or BuildAndRevision to generate a version number based on today's date and time, and write it in the Build part, Revision part, or both, respectively.
+If -Increment or -Generate is used, version will be updated accordingly:
+- -Increment, if present, can be a value between "Major", "Minor", "Build" and "Revision" to increment it when found
+- -Generate, if present, can be a value between "Build", "Revision" and "BuildAndRevision" to generate a version number based on today's date and time, and write it in the Build part, Revision part, or both, respectively
+
+Versions to be found or updated must follow Major.Minor[.Build[.Revision]] pattern, e.g.: "1.2.3.4" or "1.2.3" or "1.2"
+with any word before or after, e.g: "version 1.2" or "v1.2.3" or "\<version\>1.2.3\</version\>", etc.
 
 ### EXAMPLE
 
-Read a version in input line:
+Read version in input line:
 ```
 PS C:\> Find-Version -Line "Version 1.2.3"
-
+```
+Will return a Version object and the original line.
+```
 Major  Minor  Build  Revision
 -----  -----  -----  --------
 1      2      3      -1
 Version 1.2.3
 ```
 
-Increment build number in input line:
+### EXAMPLE
+Increment Build number in input line:
 ```
 PS C:\> Find-Version -Line "Version 1.2.3" -Increment Build
-
+```
+Will return an updated Version object with Build incremented by 1, and the modified line.
+```
 Major  Minor  Build  Revision
 -----  -----  -----  --------
 1      2      4      -1
 Version 1.2.4
 ```
 
+### EXAMPLE
 Find version in csproj file:
 ```
 PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion
-
+```
+Will return all Version objects extracted from lines that contain "AssemblyVersion", and all the corresponding lines.
+```
 Name                           Value
 ----                           -----
 Version                        1.2.3
 Line                           <AssemblyVersion>1.2.3</AssemblyVersion>
 ```
 
-Increment version in my csproj file:
+### EXAMPLE
+Increment Build number in csproj file:
 ```
 PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Increment Build
+```
+Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" incrementing Build part by 1. All updates will also be written to output.
+```
 New AssemblyVersion: 1.2.4
 ```
 
-Generate version number based on today's date and time:
+### EXAMPLE
+Generate version number based on today's day and time:
 ```
 PS C:\> Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Generate BuildAndRevision
-New AssemblyVersion: 1.3.278.3769
+```
+Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" generating new Build and Revision numbers. All updates will also be written to output.
+```
+New AssemblyVersion: 1.2.278.3769
 ```
 
+### EXAMPLE
+Update dotNET project's version at every build.
+In Visual Studio's pre-build event, just call Find-Version with needed parameters.
+If more than one version is to be updated, just call Find-Version as many times as needed.
+```
+Powershell -ExecutionPolicy ByPass "Find-Version" "-FilePath '$(ProjectDir)\MyProject.csproj' -Generate BuildAndRevision -VersionKeyword '<AssemblyVersion>'"
+Powershell -ExecutionPolicy ByPass "Find-Version" "-FilePath '$(ProjectDir)\MyProject.csproj' -Generate BuildAndRevision -VersionKeyword '<FileVersion>'"
+Powershell -ExecutionPolicy ByPass "Find-Version" "-FilePath '$(ProjectDir)\MyProject.csproj' -Generate BuildAndRevision -VersionKeyword '<Version>'"
+```
 
+### INSTALLATION
+Run Install-script.ps1 or copy script folder into Module Path.
+
+### UNINSTALLATION
+Delete DTFindVersion folder from Module Path.

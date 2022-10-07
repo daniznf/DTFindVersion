@@ -691,5 +691,53 @@ function Find-Version
 
     .PARAMETER WhatIf
         Do not actually write file, only display what would happen.
+
+    .EXAMPLE
+        Find-Version -Line "Version 1.2.3"
+
+        Will return a Version object and the original line:
+
+        Major  Minor  Build  Revision
+        -----  -----  -----  --------
+        1      2      3      -1
+        Version 1.2.3
+
+
+    .EXAMPLE
+        Find-Version -Line "Version 1.2.3" -Increment Build
+
+        Will return an updated Version object with Build incremented by 1, and the modified line:
+
+        Major  Minor  Build  Revision
+        -----  -----  -----  --------
+        1      2      4      -1
+        Version 1.2.4
+
+
+    .EXAMPLE
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion
+
+        Will return all Version objects extracted from lines that contain "AssemblyVersion", and all the corresponding lines:
+
+        Name                           Value
+        ----                           -----
+        Version                        1.2.3
+        Line                           <AssemblyVersion>1.2.3</AssemblyVersion>
+
+    .EXAMPLE
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Increment Build
+
+        Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" incrementing Build part by 1.
+        All updates will also be written to output:
+
+        New AssemblyVersion: 1.2.4
+
+    .Example
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Generate BuildAndRevision
+
+        Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" generating new Build and Revision numbers.
+        All updates will also be written to output:
+
+        New AssemblyVersion: 1.2.278.3769
     #>
 }
