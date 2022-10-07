@@ -1,6 +1,7 @@
-# DT Find Version
-Daniele's Tools Find Version<br>
-Finds and updates versions in text line or text file, source code.
+# Daniele's Tools Find-Version
+DTFindVersion<br>
+Finds and updates versions in text line or text file, source code.<br>
+Copyright (C) 2022 Daniznf
 
 ### DESCRIPTION
 If -Line is passed:
@@ -91,3 +92,6 @@ Run Install-script.ps1 or copy script folder into Module Path.
 
 ### UNINSTALLATION
 Delete DTFindVersion folder from Module Path.
+
+
+All product names, logos and brands are property of their respective owners.
