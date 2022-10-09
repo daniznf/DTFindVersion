@@ -3,15 +3,14 @@ param (
     $ModulesDir
 )
 
-$ModuleName = "DTFindVersion"
+$ModuleName = Split-Path $PSScriptRoot -Leaf
+
 Write-Host "This installation script is going to install $ModuleName."
 Write-Host ""
 
 if (-not $ModulesDir)
 {
     $ModulePaths = $env:PSModulePath.Split(";")
-
-
 
     if ($ModulePaths -is [System.Array])
     {
@@ -54,7 +53,7 @@ if (-not (Test-Path $ModuleDir))
 
 if (Test-Path $ModuleDir)
 {
-    Remove-Module DTFindVersion -ErrorAction Ignore
+    Remove-Module $ModuleName -ErrorAction Ignore
 
     Write-Host "Copying module files..."
     Copy-Item -Path .\* -Destination $ModuleDir -Include "*.psd1","*.psm1", "README.md", "LICENSE" -ErrorAction Stop
