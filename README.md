@@ -87,10 +87,10 @@ Powershell -ExecutionPolicy ByPass "Find-Version" "-FilePath '$(ProjectDir)\MyPr
 Powershell -ExecutionPolicy ByPass "Find-Version" "-FilePath '$(ProjectDir)\MyProject.csproj' -Generate BuildAndRevision -VersionKeyword '<Version>'"
 ```
 
-### INSTALLATION
-Run Install-script.ps1 or copy script folder into Module Path.
+### INSTALL
+Run DTInstallModule.ps1 in DTInstallModule directory (https://github.com/daniznf/DTInstallModule), or copy module directory into one of directories in $env:PSModulePath.
 
-### UNINSTALLATION
+### UNINSTALL
 Delete DTFindVersion folder from Module Path.
 
 
