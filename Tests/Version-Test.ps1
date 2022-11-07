@@ -26,6 +26,11 @@ comment #>
 $AnotherVersion = "2.1.1"
 $AnotherNumber = "2.2.1"
 
+$AlsoThis = "3.1.1"
+$AndThis = "3.2.1"
+$ButNotThis = "3.3.1"
+
+
 <# comment
 $Version = "1.13.1"
 #>

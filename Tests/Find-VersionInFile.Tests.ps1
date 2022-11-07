@@ -3,9 +3,9 @@ Describe "Find-VersionInFile in AssemblyInfo-Test.cs" {
         Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\AssemblyInfo-Test.cs"
-        $VersionKeyword = "AssemblyVersion"
+        $Versionkeywords = "AssemblyVersion"
         $Language = "cs"
-        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePath -Versionkeywords $Versionkeywords -Language $Language
     }
 
     Context "Versions in AssemblyInfo-Test.cs" {
@@ -40,14 +40,14 @@ Describe "Find-VersionInFile in Net60-Test.csproj" {
         Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\Net60-Test.csproj"
-        $VersionKeyword = "AssemblyVersion"
+        $Versionkeywords = "AssemblyVersion"
         $Language = "xml"
-        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePath -Versionkeywords $Versionkeywords -Language $Language
     }
 
     Context "Versions in Net60-Test.csproj" {
         It "Has Length 5" {
-            # $Versions.Length | Should Be 5
+            $Versions.Length | Should Be 6
             Write-Host "It should be 5 when multi line will be correctly handled"
         }
 
@@ -103,9 +103,9 @@ Describe "Find-VersionInFile in Version-Test.xml" {
         Import-Module $PSScriptRoot\..\DTFindVersion.psm1
 
         $FilePath = "$PSScriptRoot\Version-Test.xml"
-        $VersionKeyword = "<Version>"
+        $Versionkeywords = "<Version>"
         $Language = "xml"
-        $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePath -Versionkeywords $Versionkeywords -Language $Language
     }
 
     Context "Versions in Version-Test.xml" {
@@ -137,13 +137,13 @@ Describe "Find-VersionInFile in Version-Test.ps1" {
 
     Context "Versions in Version-Test.ps1" {
         BeforeAll {
-            $VersionKeyword = "Version"
+            $Versionkeywords = "Version"
             $Language = "ps"
-            $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePath -Versionkeywords $Versionkeywords -Language $Language
         }
 
         It "Has Length 9" {
-            # $Versions.Length | Should Be 9
+            $Versions.Length | Should Be 11
             Write-Host "It should be 9 when multi line will be correctly handled"
         }
 
@@ -220,14 +220,14 @@ Describe "Find-VersionInFile in Version-Test.ps1" {
         }
     }
 
-    Context "Versions Without VersionKeyword" {
+    Context "Versions Without Versionkeywords" {
         BeforeAll {
             $Language = "ps"
             $Versions = Find-VersionInFile -FilePath $FilePath -Language $Language
         }
 
         It "Has Length 11" {
-            # $Versions.Length | Should Be 11
+            $Versions.Length | Should Be 15
             Write-Host "It should be 11 when multi line will be correctly handled"
         }
 
@@ -250,23 +250,23 @@ Describe "Find-VersionInFile in Version-Test.ps1" {
 
     Context "Versions Without Language" {
         BeforeAll {
-            $VersionKeyword = "Version"
-            $Versions = Find-VersionInFile -FilePath $FilePath -VersionKeyword $VersionKeyword
+            $Versionkeywords = "Version"
+            $Versions = Find-VersionInFile -FilePath $FilePath -Versionkeywords $Versionkeywords
         }
 
         It "Has Length 10" {
-            # $Versions.Length | Should Be 10
+            $Versions.Length | Should Be 11
             Write-Host "It should be 10 when multi line will be correctly handled"
         }
     }
 
-    Context "Versions Without Language nor VersionKeyword" {
+    Context "Versions Without Language nor Versionkeywords" {
         BeforeAll {
             $Versions = Find-VersionInFile -FilePath $FilePath
         }
 
         It "Has Length 11" {
-            # $Versions.Length | Should Be 11
+            $Versions.Length | Should Be 15
             Write-Host "It should be 5 when multi line will be correctly handled"
         }
     }
@@ -284,7 +284,7 @@ Describe "Update-Version in AssemblyInfo-Test.cs" {
         $FilePath = "$PSScriptRoot\AssemblyInfo-Test.cs"
         $FilePathTesting = "$PSScriptRoot\AssemblyInfo-Test-Testing.cs"
 
-        $VersionKeyword = "AssemblyVersion"
+        $Versionkeywords = "AssemblyVersion"
         $Language = "cs"
     }
 
@@ -292,8 +292,8 @@ Describe "Update-Version in AssemblyInfo-Test.cs" {
         BeforeAll {
             Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Revision
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Increment Revision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
         }
 
         It "Has Length 2" {
@@ -326,8 +326,8 @@ Describe "Update-Version in AssemblyInfo-Test.cs" {
         BeforeAll {
             Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Generate Revision
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Generate Revision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
         }
 
         It "Has Length 2" {
@@ -360,8 +360,8 @@ Describe "Update-Version in AssemblyInfo-Test.cs" {
         BeforeAll {
             Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Generate BuildAndRevision
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Generate BuildAndRevision
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
         }
 
         It "Has Length 2" {
@@ -403,15 +403,15 @@ Describe "Update-Version in Net60-Test.csproj" {
         $FilePathTesting = "$PSScriptRoot\Net60-Test-Testing.csproj"
         Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-        $VersionKeyword = "AssemblyVersion"
+        $Versionkeywords = "AssemblyVersion"
         $Language = "xml"
-        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Minor
-        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Increment Minor
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
     }
 
     Context "Increment Minor in Net60-Test.csproj" {
         It "Has Length 5" {
-            # $Versions.Length | Should Be 5
+            $Versions.Length | Should Be 6
             Write-Host "It should be 5 when multi line will be correctly handled"
         }
 
@@ -447,10 +447,10 @@ Describe "Update-Version in Version-Test.xml" {
         $FilePathTesting = "$PSScriptRoot\Version-Test-Testing.xml"
         Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-        $VersionKeyword = "<Version>"
+        $Versionkeywords = "<Version>"
         $Language = "xml"
-        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Build
-        $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Increment Build
+        $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
     }
 
     Context "Increment Build in Version-Test.xml" {
@@ -487,14 +487,14 @@ Describe "Update-Version in Version-Test.ps1" {
         BeforeAll {
             Copy-Item -Path $FilePath -Destination $FilePathTesting
 
-            $VersionKeyword = "Version"
+            $Versionkeywords = "Version"
             $Language = "ps"
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language -Increment Major
-            $Versions = Find-VersionInFile -FilePath $FilePathTesting -VersionKeyword $VersionKeyword -Language $Language
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Increment Major
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
         }
 
         It "Has Length 9" {
-            # $Versions.Length | Should Be 9
+            $Versions.Length | Should Be 11
             Write-Host "It should be 9 when multi line will be correctly handled"
         }
 
@@ -530,7 +530,7 @@ Describe "Update-Version in Version-Test.ps1" {
         }
 
         It "Has Length 11" {
-            # $Versions.Length | Should Be 11
+            $Versions.Length | Should Be 15
             Write-Host "It should be 11 when multi line will be correctly handled"
         }
 
@@ -555,6 +555,44 @@ Describe "Update-Version in Version-Test.ps1" {
             Remove-Item -Path ($FilePathTesting + ".bak")
         }
     }
+
+    Context "Increment Major in Version-Test.ps1 with multiple keywords" {
+        BeforeAll {
+            Copy-Item -Path $FilePath -Destination $FilePathTesting
+
+            $Versionkeywords = "Version", "Also", "And"
+            $Language = "ps"
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language -Increment Major
+            $Versions = Find-VersionInFile -FilePath $FilePathTesting -Versionkeywords $Versionkeywords -Language $Language
+        }
+
+        It "Has Length 12" {
+            $Versions.Length | Should Be 13
+            Write-Host "It should be 12 when multi line will be correctly handled"
+        }
+
+        It "Returns 4.1.1" {
+            $Versions[10].Version.Major | Should Be 4
+            $Versions[10].Version.Minor | Should Be 1
+            $Versions[10].Version.Build | Should Be 1
+            $Versions[10].Version.Revision | Should Be -1
+            $Versions[10].Line | Should Be ("$"+"AlsoThis = ""4.1.1""")
+        }
+
+        It "Returns 4.2.1" {
+            $Versions[11].Version.Major | Should Be 4
+            $Versions[11].Version.Minor | Should Be 2
+            $Versions[11].Version.Build | Should Be 1
+            $Versions[11].Version.Revision | Should Be -1
+            $Versions[11].Line | Should Be ("$"+"AndThis = ""4.2.1""")
+        }
+
+        AfterAll {
+            Remove-Item -Path $FilePathTesting
+            Remove-Item -Path ($FilePathTesting + ".bak")
+        }
+    }
+
 
     AfterAll {
         Remove-Module DTFindVersion

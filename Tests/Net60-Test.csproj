@@ -14,9 +14,11 @@
 	comment-->
 	1.4.1</AssemblyVersion>
 	<AssemblyVersion>1.5.1</AssemblyVersion>
+	<AnotherVersion>1.6.1</AnotherVersion>
+	<FileVersion>1.7.1</FileVersion>
 
 	<!-- comment
-	<AssemblyVersion>1.6.1</AssemblyVersion>
+	<AssemblyVersion>1.8.1</AssemblyVersion>
 	comment-->
 
   </PropertyGroup>
