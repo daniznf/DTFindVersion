@@ -244,8 +244,8 @@ function Find-VersionInFile
         [Parameter(ParameterSetName="Find")]
         [Parameter(ParameterSetName="Increment")]
         [Parameter(ParameterSetName="Generate")]
-        [string]
-        $VersionKeyword,
+        [string[]]
+        $VersionKeywords,
 
         [Parameter(ParameterSetName="Find")]
         [Parameter(ParameterSetName="Increment")]
@@ -363,7 +363,24 @@ function Find-VersionInFile
         $OrLine = $FileContent[$i]
         $Line = $OrLine
 
-        if (($null -eq $VersionKeyword) -or ($OrLine.Contains($VersionKeyword)))
+        $VersionFound = $false
+        if ($VersionKeywords -is [System.String[]])
+        {
+            for ($j = 0; $j -lt $VersionKeywords.Length; $j++)
+            {
+                if ($OrLine.Contains($VersionKeywords[$j]))
+                {
+                    $VersionFound = $true
+                    break
+                }
+            }
+        }
+        else
+        {
+            if ($OrLine.Contains($VersionKeywords)) { $VersionFound = $true }
+        }
+
+        if (($null -eq $VersionKeywords) -or ($VersionFound))
         {
             # Remove comments from $Line, and then parse it to find a version.
 
@@ -438,7 +455,7 @@ function Find-VersionInFile
                 }
             }
 
-            # $Line is now clean. But it could be empty if all line was a comment with a $VersionKeyword within.
+            # $Line is now clean. But it could be empty if all line was a comment with one of $VersionKeywords within.
             if ($Line)
             {
                 $Start, $Version, $End = Find-VersionInLine -Line $Line
@@ -480,13 +497,13 @@ function Find-VersionInFile
                 }
                 else
                 {
-                    # $Line  contains $VersionKeyword but does not contain a version
+                    # $Line  contains one of $VersionKeywords but does not contain a version
                     $Line = $OrLine
                 }
             }
             else
             {
-                # Line contains $VersionKeyword but is a comment
+                # Line contains one of $VersionKeywords but is a comment
                 $Line = $OrLine
             }
 
@@ -517,14 +534,16 @@ function Find-VersionInFile
         Finds or updates version in text file.
 
     .DESCRIPTION
-        Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
+        Parses input text file and extracts all Versions found in lines that contain one of $VersionKeywords.
         If -Increment or -Generate is used, version will be updated in file accordingly.
 
     .PARAMETER FilePath
         Complete path of file to scan.
 
-    .PARAMETER VersionKeyword,
-        Word to search, e.g: Version.
+    .PARAMETER VersionKeywords,
+        String(s) to search,
+        E.g: -VersionKeywords "Version"
+        E.g. -VersionKeywords "AssemblyVersion","FileVersion"
 
     .PARAMETER Language
         Language of the file, used to properly handle comments.
@@ -571,8 +590,8 @@ function Find-Version
         [Parameter(ParameterSetName="FindFile")]
         [Parameter(ParameterSetName="IncrementFile")]
         [Parameter(ParameterSetName="GenerateFile")]
-        [string]
-        $VersionKeyword,
+        [string[]]
+        $VersionKeywords,
 
         [Parameter(ParameterSetName="FindFile")]
         [Parameter(ParameterSetName="IncrementFile")]
@@ -619,7 +638,7 @@ function Find-Version
     {
         $FileArgs.Add("FilePath", $FilePath)
         if ($Language) { $FileArgs.Add("Language", $Language) }
-        if ($VersionKeyword) { $FileArgs.Add("VersionKeyword", $VersionKeyword) }
+        if ($VersionKeywords) { $FileArgs.Add("VersionKeywords", $VersionKeywords) }
     }
 
     if ($Line)
@@ -642,7 +661,7 @@ function Find-Version
         {
             if ($WhatIf) { $FileArgs.Add("WhatIf", $WhatIf) }
             $Versions = Find-VersionInFile @FileArgs @UpdateArgs
-            return ( $Versions | ForEach-Object { write-host ("New {0}: {1}" -f $VersionKeyword, $_.Version) } )
+            return ( $Versions | ForEach-Object { write-host ("New version {0} in line {1}" -f $_.Version, $_.Line.Trim()) } )
         }
         else
         {
@@ -661,7 +680,7 @@ function Find-Version
             Version contained in Line must follow Major.Minor[.Build[.Revision]] pattern, e.g.:
             1.2.3.4 or 1.2.3 or 1.2.
         If -FilePath is passed:
-            Parses input text file and extracts all Versions found in lines that contain -VersionKeyword.
+            Parses input text file and extracts all Versions found in lines that contain $VersionKeywords.
         If -Increment or -Generate is used, version will be updated accordingly.
 
    .PARAMETER Line
@@ -670,8 +689,10 @@ function Find-Version
     .PARAMETER FilePath
         Complete path of file to scan.
 
-    .PARAMETER VersionKeyword
-        Word to search, e.g: Version.
+    .PARAMETER VersionKeywords
+        Word(s) to search:
+        E.g: -VersionKeywords "Version"
+        E.g. -VersionKeywords "AssemblyVersion","FileVersion"
 
     .PARAMETER Language
         Language of the file, used to properly handle comments.
@@ -715,7 +736,7 @@ function Find-Version
 
 
     .EXAMPLE
-        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeywords AssemblyVersion
 
         Will return all Version objects extracted from lines that contain "AssemblyVersion", and all the corresponding lines:
 
@@ -725,7 +746,7 @@ function Find-Version
         Line                           <AssemblyVersion>1.2.3</AssemblyVersion>
 
     .EXAMPLE
-        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Increment Build
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeywords AssemblyVersion -Increment Build
 
         Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" incrementing Build part by 1.
         All updates will also be written to output:
@@ -733,7 +754,7 @@ function Find-Version
         New AssemblyVersion: 1.2.4
 
     .Example
-        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeyword AssemblyVersion -Generate BuildAndRevision
+        Find-Version -FilePath .\Tests\Net60-Test.csproj -VersionKeywords AssemblyVersion -Generate BuildAndRevision
 
         Will update the file (making a backup before) updating all lines that contain "AssemblyVersion" generating new Build and Revision numbers.
         All updates will also be written to output:
