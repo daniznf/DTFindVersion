@@ -240,20 +240,20 @@ Describe "Update-Version" {
             $Version =[version]::new(1, 2, 3, 4)
         }
 
-        It "Returns 1.2.3162389" {
+        It "Returns 1.2.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 3162389
+            $NewVersion.Build | Should Be 455438
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
-        It "Returns 1.2.3.3162389" {
+        It "Returns 1.2.3.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Revision -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
             $NewVersion.Build | Should Be $Version.Build
-            $NewVersion.Revision | Should Be 3162389
+            $NewVersion.Revision | Should Be 455438
         }
 
         It "Returns 1.2.316.2389" {
@@ -271,20 +271,20 @@ Describe "Update-Version" {
             $Version =[version]::new(0, 0, 0, 0)
         }
 
-        It "Returns 0.0.3162389" {
+        It "Returns 0.0.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 3162389
+            $NewVersion.Build | Should Be 455438
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
-        It "Returns 0.0.0.3162389" {
+        It "Returns 0.0.0.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Revision -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
             $NewVersion.Build | Should Be $Version.Build
-            $NewVersion.Revision | Should Be 3162389
+            $NewVersion.Revision | Should Be 455438
         }
 
         It "Returns 0.0.316.2389" {
@@ -302,11 +302,11 @@ Describe "Update-Version" {
             $Version =[version]::new(1, 2, 3)
         }
 
-        It "Returns 1.2.3162389" {
+        It "Returns 1.2.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 3162389
+            $NewVersion.Build | Should Be 455438
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
@@ -333,11 +333,11 @@ Describe "Update-Version" {
             $Version =[version]::new(0, 0, 0)
         }
 
-        It "Returns 0.0.3162389" {
+        It "Returns 0.0.455438" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 3162389
+            $NewVersion.Build | Should Be 455438
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
@@ -427,20 +427,20 @@ Describe "Update-Version" {
             $DayOffset = 1000
         }
 
-        It "Returns 1.2.13162389" {
+        It "Returns 1.2.1895438" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now -DayOffset $DayOffset
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 13162389
+            $NewVersion.Build | Should Be 1895438
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
-        It "Returns 1.2.3.13162389" {
+        It "Returns 1.2.3.1895438" {
             $NewVersion = Update-Version -Version $Version -Generate Revision -Now $Now -DayOffset $DayOffset
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
             $NewVersion.Build | Should Be $Version.Build
-            $NewVersion.Revision | Should Be 13162389
+            $NewVersion.Revision | Should Be 1895438
         }
 
         It "Returns 1.2.1316.2389" {
@@ -459,20 +459,20 @@ Describe "Update-Version" {
             $DayOffset = -1000
         }
 
-        It "Returns 1.2.2389" {
+        It "Returns 1.2.398" {
             $NewVersion = Update-Version -Version $Version -Generate Build -Now $Now -DayOffset $DayOffset
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
-            $NewVersion.Build | Should Be 2389
+            $NewVersion.Build | Should Be 398
             $NewVersion.Revision | Should Be $Version.Revision
         }
 
-        It "Returns 1.2.3.2389" {
+        It "Returns 1.2.3.398" {
             $NewVersion = Update-Version -Version $Version -Generate Revision -Now $Now -DayOffset $DayOffset
             $NewVersion.Major | Should Be $Version.Major
             $NewVersion.Minor | Should Be $Version.Minor
             $NewVersion.Build | Should Be $Version.Build
-            $NewVersion.Revision | Should Be 2389
+            $NewVersion.Revision | Should Be 398
         }
 
         It "Returns 1.2.0.2389" {

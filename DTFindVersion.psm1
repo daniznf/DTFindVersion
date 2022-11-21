@@ -122,32 +122,41 @@ function Update-Version {
     }
     elseif ($Generate)
     {
-         # Max 365
-         $DayPart = ($Now).DayOfYear + $DayOffset
-         if ($DayPart -lt 0) { $DayPart = 0 }
+        # Max 365
+        $DayPart = ($Now).DayOfYear + $DayOffset
+        if ($DayPart -lt 0) { $DayPart = 0 }
 
-         # Max 86400 / 10
-         $SecondPart = ($Now).Hour * 60 * 60 + ($Now).Minute * 60 + ($Now).Second
-         $SecondPart = [System.Math]::Round($SecondPart / 10)
+        if ($Generate -eq "BuildAndRevision")
+        {
+            # Max 8640
+            $SecondPart = ($Now).Hour * 60 * 60 + ($Now).Minute * 60 + ($Now).Second
+            $SecondPart = [System.Math]::Round($SecondPart / 10)
 
-         if (($Generate -eq "Build") -and (-not ($Generate -eq "Revision")))
-         {
-             $NewBuild = $DayPart * 10000 + $SecondPart
+            $NewBuild = $DayPart
+            $NewRevision = $SecondPart
+        }
+        else
+        {
+            # Max 1440
+            $TotalMinutes = ($Now).Hour * 60 + ($Now).Minute
 
-             if ($HasRevision) { $NewRevision = $Version.Revision }
-         }
-         elseif ((-not ($Generate -eq "Build")) -and ($Generate -eq "Revision"))
-         {
-             if ($HasBuild)  { $NewBuild = $Version.Build }
-             else { $NewBuild = 0}
+            # Up to 45 days, 12 hours and 15 minutes produces a build number lower than 65536.
+            $MinutePart = $DayPart * 1440 + $TotalMinutes
 
-             $NewRevision = $DayPart * 10000 + $SecondPart
-         }
-         else # $Generate -eq "BuildAndRevision"
-         {
-             $NewBuild = $DayPart
-             $NewRevision = $SecondPart
-         }
+            if ($Generate -eq "Build")
+            {
+                $NewBuild = $MinutePart
+
+                if ($HasRevision) { $NewRevision = $Version.Revision }
+            }
+            else # ($Generate -eq "Revision")
+            {
+                if ($HasBuild)  { $NewBuild = $Version.Build }
+                else { $NewBuild = 0 }
+
+                $NewRevision = $MinutePart
+            }
+        }
     }
 
     # Version always has Major and Minor.
@@ -174,20 +183,25 @@ function Update-Version {
         Value to increment.
 
     .PARAMETER Generate
-        Generate a new version number for Build or Revision, or both.
-        If -Generate is Build, the number will be written in Build part.
-        If -Generate is Revision, the number will be written in Revision part.
-        If -Generate is BuildAndRevision, Build will contain "day" part and
-        Revision will contain "second" part.
+        Generates a new version number for Build or Revision, or both.
+        If -Generate is Build, the whole number will be written in Build part.
+        If -Generate is Revision, the whole number will be written in Revision part.
+        If -Generate is BuildAndRevision, the first part of the generated number
+            will be written in Build and the second part in Revision.
 
     .PARAMETER DayOffset,
-        A positive or negative number to add to the "day" part of the Generate algorithm.
+        A positive or negative number of days to add to the "day" part of the Generate algorithm.
 
     .PARAMETER Now
         A Datetime used to generate number, retrieved before calling this function.
 
     .OUTPUTS
         A new Version with updated values.
+
+    .NOTES
+        Both -Generate Build and -Generate Revision produce a shorter number than
+        -Generate BuildAndRevision, to help maintaining it lower than 65535.
+        If a bigger number is produced, -DayOffset can be used to reduce it.
     #>
 }
 
@@ -497,13 +511,13 @@ function Find-VersionInFile
                 }
                 else
                 {
-                    # $Line  contains one of $VersionKeywords but does not contain a version
+                    # $Line  contains one of $VersionKeywords but does not contain a version.
                     $Line = $OrLine
                 }
             }
             else
             {
-                # Line contains one of $VersionKeywords but is a comment
+                # Line contains one of $VersionKeywords but is a comment.
                 $Line = $OrLine
             }
 
@@ -552,11 +566,11 @@ function Find-VersionInFile
         Value to increment.
 
     .PARAMETER Generate
-        Generate a new version number for Build or Revision, or both.
-        If -Generate is Build, the number will be written in Build part.
-        If -Generate is Revision, the number will be written in Revision part.
-        If -Generate is BuildAndRevision, Build will contain "day" part and
-        Revision will contain "second" part.
+        Generates a new version number for Build or Revision, or both.
+        If -Generate is Build, the whole number will be written in Build part.
+        If -Generate is Revision, the whole number will be written in Revision part.
+        If -Generate is BuildAndRevision, the first part of the generated number
+            will be written in Build and the second part in Revision.
 
     .PARAMETER DayOffset,
         A positive or negative number to add to the "day" part of the Generate algorithm.
@@ -701,17 +715,22 @@ function Find-Version
         Value to increment.
 
     .PARAMETER Generate
-        Generate a new version number for Build or Revision, or both.
-        If -Generate is Build, the number will be written in Build part.
-        If -Generate is Revision, the number will be written in Revision part.
-        If -Generate is BuildAndRevision, Build will contain "day" part and
-        Revision will contain "second" part.
+        Generates a new version number for Build or Revision, or both.
+        If -Generate is Build, the whole number will be written in Build part.
+        If -Generate is Revision, the whole number will be written in Revision part.
+        If -Generate is BuildAndRevision, the first part of the generated number
+            will be written in Build and the second part in Revision.
 
-    .PARAMETER DayOffset,
+    .PARAMETER DayOffset
         A positive or negative number to add to the "day" part of the Generate algorithm.
 
     .PARAMETER WhatIf
         Do not actually write file, only display what would happen.
+
+    .NOTES
+        Both -Generate Build and -Generate Revision produce a shorter number than
+        -Generate BuildAndRevision, to help maintaining it lower than 65535.
+        If a bigger number is produced, -DayOffset can be used to reduce it.
 
     .EXAMPLE
         Find-Version -Line "Version 1.2.3"

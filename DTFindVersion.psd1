@@ -6,7 +6,7 @@
 RootModule = 'DTFindVersion.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.28.1'
+ModuleVersion = '0.29.0'
 
 # ID used to uniquely identify this module
 GUID = '9335a77e-bd13-4398-a393-cb1f614fe2b3'
@@ -21,7 +21,7 @@ Author = 'daniznf'
 Copyright = '(c) 2022 daniznf. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Finds versions in line of text, or text files, corresponding to Major.Minor.Build.Revision pattern.'
+Description = 'Finds versions in line of text, or text files, corresponding to Major.Minor[.Build[.Revision]] pattern.'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @("Find-Version")
@@ -42,7 +42,7 @@ FileList = @("DTFindVersion.psd1", "DTFindVersion.psm1", "LICENSE", "README.md")
 PrivateData = @{
     PSData = @{
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @("Update", "Increment", "Version", "Text", "File", "Source", "Code", "Development", "Visual-Studio", "dotNET")
+        Tags = @("Update", "Increment", "Version", "Text", "File", "Source", "Code", "Development", "Visual-Studio")
 
         # A URL to the license for this module.
         LicenseUri = 'https://www.gnu.org/licenses/gpl-3.0.txt'
